@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # 确定使用哪一块gpu
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # 确定使用哪一块gpu
 import torch
 import torchvision
 import torchvision.transforms as transforms
