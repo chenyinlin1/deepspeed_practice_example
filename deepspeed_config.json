@@ -1,0 +1,10 @@
+{
+    "train_batch_size": 4, 
+    "optimizer": {
+        "type": "SGD",
+        "params": {
+            "lr": 0.001,
+            "momentum": 0.9
+        }
+    }
+}
