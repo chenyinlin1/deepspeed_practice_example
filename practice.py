@@ -60,7 +60,7 @@ if __name__ == "__main__":
     # parameters = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     if args.isDeepSpeed:
-        model,*_ = deepspeed.initialize(args=args, model=model, model_parameters=model.parameters,optimizer=optimizer)
+        model,*_ = deepspeed.initialize(args=args, model=model, model_parameters=model.parameters(),optimizer=optimizer)
         device = torch.device('cuda',args.local_rank)#放置到当前模型所在的gpu上面。
     else:
         device = torch.device('cuda')
