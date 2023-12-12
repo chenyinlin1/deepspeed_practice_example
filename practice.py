@@ -20,6 +20,7 @@ def add_argument():
     parser.add_argument('--local_rank', type=int, default=-1,
                     help='local rank passed from distributed launcher')
     parser.add_argument('--isDeepSpeed',action='store_true', help='是否使用deepspeed')
+    parser.add_argument('--isoffload',action='store_true', help='是否使用zero_offload')
     args, _ = parser.parse_known_args()
     if args.isDeepSpeed:
         # Include DeepSpeed configuration arguments.   
@@ -58,7 +59,10 @@ if __name__ == "__main__":
     model = Net()
     criterion = nn.CrossEntropyLoss()
     # parameters = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    if args.isoffload:
+        optimizer = deepspeed.ops.adam.DeepSpeedCPUAdam(model.parameters(), lr=0.001)
+    else:
+        optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     if args.isDeepSpeed:
         model,*_ = deepspeed.initialize(args=args, model=model, model_parameters=model.parameters(),optimizer=optimizer)
         device = torch.device('cuda',args.local_rank)#放置到当前模型所在的gpu上面。
@@ -70,11 +74,11 @@ if __name__ == "__main__":
     transform = transforms.Compose(
         [transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    batch_size = 4
-    trainset = torchvision.datasets.CIFAR10(root='./DATA/CIFAR10', train=True,
+    batch_size = 100
+    trainset = torchvision.datasets.CIFAR10(root='/data/DATA/CIFAR10', train=True,
                                             download=True, transform=transform)
 
-    testset = torchvision.datasets.CIFAR10(root='./DATA/CIFAR10', train=False,
+    testset = torchvision.datasets.CIFAR10(root='/data/DATA/CIFAR10', train=False,
                                         download=True, transform=transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                             shuffle=False, num_workers=2)
